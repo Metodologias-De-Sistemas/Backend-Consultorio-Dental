@@ -10,7 +10,7 @@ exports.getAll = (Model) => async (_req, res, next) => {
       });
     }
 
-    res.send(docs.toJSON());
+    res.send(docs.map((doc) => doc.toJSON()));
   } catch (err) {
     console.log(`error en el servidor:  ${err.message}`);
     next(

@@ -1,16 +1,14 @@
-const pacienteController = require('../controllers/baseController');
+const pacienteController = require('../controllers/pacienteController');
 const router = require('express').Router();
-const Paciente = require('../models/Paciente');
 
 router
   .route('/')
-  .get(pacienteController.getAll(Paciente))
-  .post(pacienteController.createOne(Paciente));
+  .get(pacienteController.getAll)
+  .post(pacienteController.createOne);
 
 router
-  .route('/:id') // http://localhost:3001/api/pacientes/123;
-  .get(pacienteController.getOne(Paciente))
-  .patch(pacienteController.updateOne(Paciente))
-  .delete(pacienteController.deleteOne(Paciente));
+  .route('/:id')
+  .get(pacienteController.getOne)
+  .delete(pacienteController.deleteOne);
 
 module.exports = router;

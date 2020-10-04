@@ -8,7 +8,7 @@ const pacienteSchema = new mongoose.Schema({
     type: String,
     required: true,
     minlength: 5,
-    maxlength: 30,
+    maxlength: 50,
   },
   nombreDeUsuario: {
     type: String,
@@ -19,7 +19,6 @@ const pacienteSchema = new mongoose.Schema({
     type: String,
     required: true,
     minlength: 8,
-    maxlength: 25,
   },
   DNI: {
     type: String,
@@ -50,6 +49,15 @@ const pacienteSchema = new mongoose.Schema({
   obraSocial: {
     type: String,
     required: true,
+  },
+});
+
+pacienteSchema.set('toJSON', {
+  transform: (document, returnedPaciente) => {
+    returnedPaciente.id = returnedPaciente._id.toString();
+
+    delete returnedPaciente._id;
+    delete returnedPaciente.__v;
   },
 });
 
