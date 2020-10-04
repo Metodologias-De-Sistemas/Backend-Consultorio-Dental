@@ -1,11 +1,25 @@
 const mongoose = require('mongoose');
 
+mongoose.set('useFindAndModify', false);
+mongoose.set('useCreateIndex', true);
+
 const pacienteSchema = new mongoose.Schema({
   nombreCompleto: {
     type: String,
     required: true,
     minlength: 5,
     maxlength: 30,
+  },
+  nombreDeUsuario: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  password: {
+    type: String,
+    required: true,
+    minlength: 8,
+    maxlength: 25,
   },
   DNI: {
     type: String,
