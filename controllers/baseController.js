@@ -10,7 +10,7 @@ exports.getAll = (Model) => async (_req, res, next) => {
       });
     }
 
-    res.send(docs);
+    res.send(docs.toJSON());
   } catch (err) {
     console.log(`error en el servidor:  ${err.message}`);
     next(
@@ -34,7 +34,7 @@ exports.getOne = (Model) => async (req, res, next) => {
         .send({ error: 'No hay un paciente con el id especificado ' });
     }
 
-    res.send(docEncontrado);
+    res.send(docEncontrado.toJSON());
   } catch (err) {
     console.error(`error en getOne: ${err.message}`);
     next(
@@ -49,7 +49,7 @@ exports.createOne = (Model) => async (req, res, next) => {
 
     const response = await Model.create({ ...body });
 
-    res.status(201).send(response);
+    res.status(201).send(response.toJSON());
   } catch (err) {
     console.error(`error en createOne: ${err.message}`);
     next(
@@ -86,7 +86,7 @@ exports.updateOne = (Model) => async (req, res, next) => {
       { new: true },
     );
 
-    res.status(200).send(documentoActualizado);
+    res.status(200).send(documentoActualizado.toJSON());
   } catch (err) {
     console.error(`error en updateOne ${err.message}`);
     next(

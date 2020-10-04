@@ -12,4 +12,13 @@ const testSchema = new mongoose.Schema({
   },
 });
 
+testSchema.set('toJSON', {
+  transform: (document, returnedTest) => {
+    returnedTest.id = returnedTest._id.toString();
+
+    delete returnedTest._id;
+    delete returnedTest.__v;
+  },
+});
+
 module.exports = mongoose.model('Test', testSchema);
