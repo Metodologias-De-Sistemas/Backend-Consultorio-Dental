@@ -55,7 +55,7 @@ exports.createOne = async (req, res, next) => {
 
     const paciente = new Paciente({
       ...body,
-      password: passwordHasheada,
+      passwordHasheada,
       edad,
     });
 
@@ -65,6 +65,32 @@ exports.createOne = async (req, res, next) => {
   } catch (err) {
     console.error(`Error al crear un nuevo paciente: ${err.message}`);
     next(new MyError('Error en createOne paciente'));
+  }
+};
+
+exports.updateOne = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { body } = req;
+
+    const pacienteModificado = {
+      ...body,
+    };
+
+    const pacienteActualizado = await Paciente.findByIdAndUpdate(
+      id,
+      pacienteModificado,
+      { new: true },
+    );
+
+    if (!pacienteActualizado) {
+      res
+        .status(404)
+        .send({ msg: 'Ocurrio un error al actualizar el paciente' });
+    }
+  } catch (err) {
+    console.error(`Error in updateOne paciente: ${err.message}`);
+    next(new MyError('Error en updateOne paciente'));
   }
 };
 

@@ -15,7 +15,7 @@ const pacienteSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
-  password: {
+  passwordHasheada: {
     type: String,
     required: true,
     minlength: 8,

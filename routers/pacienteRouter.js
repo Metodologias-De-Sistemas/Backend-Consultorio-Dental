@@ -8,6 +8,7 @@ router.route('/registro').post(pacienteController.createOne);
 router
   .route('/:id')
   .get(pacienteController.getOne)
+  .patch(pacienteController.updateOne)
   .delete(pacienteController.deleteOne);
 
 module.exports = router;
