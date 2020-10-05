@@ -5,7 +5,7 @@ const bcrypt = require('bcrypt');
 
 exports.getAll = async (_req, res, next) => {
   try {
-    const pacientesDocs = await Paciente.find({});
+    const pacientesDocs = await Paciente.find({}).select('-passwordHasheada');
 
     if (!pacientesDocs) {
       res
@@ -25,21 +25,6 @@ exports.getAll = async (_req, res, next) => {
 exports.createOne = async (req, res, next) => {
   try {
     const { body } = req;
-
-    /* 
-  paciente: {
-    nombreCompleto: Gaston Ferreyra
-    fechaNacimiento: 24/08/1995,
-    DNI: 37 444 444,
-    nombreDeUsuario: tongas,
-    password: 12345678,
-    numDeTelefono: 549362444444,
-    email: tongas@gmail.com,
-    obraSocial: OSDE,
-  }
-
-  edad: derivado
-  **/
 
     // hash de password
 
@@ -61,7 +46,13 @@ exports.createOne = async (req, res, next) => {
 
     const pacienteGuardado = await paciente.save();
 
-    res.send(pacienteGuardado.toJSON());
+    const pacienteGuardadoJSON = pacienteGuardado.toJSON();
+
+    // Deleteamos la password porque no hace falta devovlersela a la pagina.
+
+    delete pacienteGuardadoJSON.passwordHasheada;
+
+    res.send(pacienteGuardadoJSON);
   } catch (err) {
     console.error(`Error al crear un nuevo paciente: ${err.message}`);
     next(new MyError('Error en createOne paciente'));
@@ -81,7 +72,7 @@ exports.updateOne = async (req, res, next) => {
       id,
       pacienteModificado,
       { new: true },
-    );
+    ).select('-passwordHasheada');
 
     if (!pacienteActualizado) {
       res
@@ -98,7 +89,7 @@ exports.getOne = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    const pacienteEncontrado = await Paciente.findById(id);
+    const pacienteEncontrado = await Paciente.findById(id).select('-passwordHasheada');
 
     if (!pacienteEncontrado) {
       res.status(404).send({
