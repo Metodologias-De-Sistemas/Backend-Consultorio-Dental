@@ -1,10 +1,9 @@
 const pacienteController = require('../controllers/pacienteController');
 const router = require('express').Router();
 
-router
-  .route('/')
-  .get(pacienteController.getAll)
-  .post(pacienteController.createOne);
+router.route('/').get(pacienteController.getAll);
+
+router.route('/registro').post(pacienteController.createOne);
 
 router
   .route('/:id')
