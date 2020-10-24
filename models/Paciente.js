@@ -1,3 +1,5 @@
+/* eslint-disable no-param-reassign */
+/* eslint-disable no-underscore-dangle */
 const mongoose = require('mongoose');
 
 mongoose.set('useFindAndModify', false);
@@ -33,7 +35,7 @@ const pacienteSchema = new mongoose.Schema({
     max: 100,
   },
   fechaNacimiento: {
-    type: Date,
+    type: String,
     required: true,
   },
   numeroTelefono: {
@@ -50,6 +52,11 @@ const pacienteSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  rol: {
+    type: Number,
+    required: true,
+    default: 0,
+  },
 });
 
 pacienteSchema.set('toJSON', {
@@ -58,6 +65,7 @@ pacienteSchema.set('toJSON', {
 
     delete returnedPaciente._id;
     delete returnedPaciente.__v;
+    delete returnedPaciente.passwordHasheada;
   },
 });
 

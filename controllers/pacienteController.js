@@ -1,28 +1,26 @@
+const bcrypt = require('bcrypt');
+const { StatusCodes } = require('http-status-codes');
+const { convertirEnMoment, calcularEdad } = require('../utils/utils');
 const Paciente = require('../models/Paciente');
 const MyError = require('../utils/MyError');
-const moment = require('moment-business-days');
-const bcrypt = require('bcrypt');
 
-exports.getAll = async (_req, res, next) => {
+exports.getAll = async (_req, res) => {
   try {
     const pacientesDocs = await Paciente.find({}).select('-passwordHasheada');
 
     if (!pacientesDocs) {
       res
-        .status(404)
+        .status(StatusCodes.NOT_FOUND)
         .send({ error: 'No hay pacientes para mostrar en la base de datos' });
     }
 
     res.send(pacientesDocs.map((pacienteDoc) => pacienteDoc.toJSON()));
   } catch (err) {
-    console.error(
-      'Error al intentar buscar todos los pacientes en la base de datos.',
-    );
-    next(new MyError('Error en getAll Pacientes'));
+    throw new MyError('Error en getAll Pacientes');
   }
 };
 
-exports.createOne = async (req, res, next) => {
+exports.createOne = async (req, res) => {
   try {
     const { body } = req;
 
@@ -31,35 +29,25 @@ exports.createOne = async (req, res, next) => {
     const rondas = 10;
     const passwordHasheada = await bcrypt.hash(body.password, rondas);
 
-    // Sacar edad en base a fecha nacimiento
-
-    const esteAño = moment().year();
-    const momentNacimiento = moment(body.fechaNacimiento);
-    const añoNacimiento = momentNacimiento.year();
-    const edad = esteAño - añoNacimiento;
+    const fechaNacimientoMoment = convertirEnMoment(body.fechaNacimiento);
+    const edad = calcularEdad(fechaNacimientoMoment);
 
     const paciente = new Paciente({
       ...body,
       passwordHasheada,
       edad,
+      fechaNacimiento: fechaNacimientoMoment.format('DD-MM-YYYY'),
     });
 
     const pacienteGuardado = await paciente.save();
 
-    const pacienteGuardadoJSON = pacienteGuardado.toJSON();
-
-    // Deleteamos la password porque no hace falta devovlersela a la pagina.
-
-    delete pacienteGuardadoJSON.passwordHasheada;
-
-    res.send(pacienteGuardadoJSON);
+    res.status(StatusCodes.CREATED).send(pacienteGuardado.toJSON());
   } catch (err) {
-    console.error(`Error al crear un nuevo paciente: ${err.message}`);
-    next(new MyError('Error en createOne paciente'));
+    throw new MyError('Error en createOne paciente');
   }
 };
 
-exports.updateOne = async (req, res, next) => {
+exports.updateOne = async (req, res) => {
   try {
     const { id } = req.params;
     const { body } = req;
@@ -76,49 +64,44 @@ exports.updateOne = async (req, res, next) => {
 
     if (!pacienteActualizado) {
       res
-        .status(404)
+        .status(StatusCodes.NOT_FOUND)
         .send({ msg: 'Ocurrio un error al actualizar el paciente' });
     }
   } catch (err) {
-    console.error(`Error in updateOne paciente: ${err.message}`);
-    next(new MyError('Error en updateOne paciente'));
+    throw new MyError('Error en updateOne paciente');
   }
 };
 
-exports.getOne = async (req, res, next) => {
+exports.getOne = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const pacienteEncontrado = await Paciente.findById(id).select('-passwordHasheada');
+    const pacienteEncontrado = await Paciente.findById(id).select(
+      '-passwordHasheada',
+    );
 
     if (!pacienteEncontrado) {
-      res.status(404).send({
+      res.status(StatusCodes.NOT_FOUND).send({
         msg: 'No se pudo encontrar ningun paciente con el id especificado',
       });
     }
 
     res.send(pacienteEncontrado.toJSON());
   } catch (err) {
-    console.error(
-      `Hubo un error al buscar el paciente especificado: ${err.message} `,
-    );
-    next(new MyError('Error en getOne Paciente.'));
+    throw new MyError('Error en getOne Paciente.');
   }
 };
 
-exports.deleteOne = async (req, res, next) => {
+exports.deleteOne = async (req, res) => {
   try {
     const { id } = req.params;
 
     await Paciente.findByIdAndDelete(id);
 
-    res.status(200).send({
-      msg: 'EL documento fue borrado de la base de datos exitosamente. ',
+    res.status(StatusCodes.OK).send({
+      msg: 'El documento fue borrado de la base de datos exitosamente. ',
     });
   } catch (err) {
-    console.error(
-      `Error al intentar borrar un paciente en la base de datos: ${err.message}`,
-    );
-    next(new MyError('Error en deleteOne Paciante'));
+    throw new MyError('Error en deleteOne controller');
   }
 };

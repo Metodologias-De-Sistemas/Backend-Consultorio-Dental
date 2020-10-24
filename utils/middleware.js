@@ -1,4 +1,4 @@
-const endpointDesconocido = (_req, res, _next) => {
+const endpointDesconocido = (_req, res) => {
   res.status(404).send({ error: 'Endpoint desconocido ' });
 };
 

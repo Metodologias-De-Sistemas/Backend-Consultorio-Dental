@@ -15,8 +15,8 @@ exports.getAll = (Model) => async (_req, res, next) => {
     console.log(`error en el servidor:  ${err.message}`);
     next(
       new MyError(
-        'Ocurrio un problema al intentar conseguir todos los registros de la entidad pedida ',
-      ),
+        'Ocurrio un problema al intentar conseguir todos los registros de la entidad pedida '
+      )
     );
   }
 };
@@ -27,19 +27,13 @@ exports.getOne = (Model) => async (req, res, next) => {
     const docEncontrado = await Model.findById(id);
 
     if (!docEncontrado) {
-      // undefined, null, '', 0, false
-
-      res
-        .status(404)
-        .send({ error: 'No hay un paciente con el id especificado ' });
+      res.status(404).send({ error: 'No hay un paciente con el id especificado ' });
     }
 
     res.send(docEncontrado.toJSON());
   } catch (err) {
     console.error(`error en getOne: ${err.message}`);
-    next(
-      new MyError('Ocurrio un problema al intentar buscar el registro pedido'),
-    );
+    next(new MyError('Ocurrio un problema al intentar buscar el registro pedido'));
   }
 };
 
@@ -52,9 +46,7 @@ exports.createOne = (Model) => async (req, res, next) => {
     res.status(201).send(response.toJSON());
   } catch (err) {
     console.error(`error en createOne: ${err.message}`);
-    next(
-      new MyError(`Ocurrio un problema al intentar crear el registro pedido`),
-    );
+    next(new MyError(`Ocurrio un problema al intentar crear el registro pedido`));
   }
 };
 
@@ -64,14 +56,10 @@ exports.deleteOne = (Model) => async (req, res, next) => {
 
     await Model.findByIdAndDelete(id);
 
-    res
-      .status(204)
-      .send({ msg: ' El documento pedido fue borrado exitosamente. ' });
+    res.status(204).send({ msg: ' El documento pedido fue borrado exitosamente. ' });
   } catch (err) {
     console.error(`error en deleteOne: ${err.message}`);
-    next(
-      new MyError(`Ocurrio un problema al intentar borrar el registro pedido.`),
-    );
+    next(new MyError(`Ocurrio un problema al intentar borrar el registro pedido.`));
   }
 };
 
@@ -80,19 +68,11 @@ exports.updateOne = (Model) => async (req, res, next) => {
     const { id } = req.params;
     const { body } = req;
 
-    const documentoActualizado = await Model.findByIdAndUpdate(
-      id,
-      { ...body },
-      { new: true },
-    );
+    const documentoActualizado = await Model.findByIdAndUpdate(id, { ...body }, { new: true });
 
     res.status(200).send(documentoActualizado.toJSON());
   } catch (err) {
     console.error(`error en updateOne ${err.message}`);
-    next(
-      new MyError(
-        'OCurrio un problema al intentar modificar el registro pedido',
-      ),
-    );
+    next(new MyError('OCurrio un problema al intentar modificar el registro pedido'));
   }
 };
