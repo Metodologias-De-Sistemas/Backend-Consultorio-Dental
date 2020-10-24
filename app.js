@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const { endpointDesconocido } = require('./utils/middleware');
 const pacienteRouter = require('./routers/pacienteRouter');
+const loginRouter = require('./routers/loginRouter')
 
 const app = express();
 
@@ -15,6 +16,7 @@ app.use(morgan('dev'));
 
 // Endpoints
 app.use('/api/pacientes', pacienteRouter);
+app.use('/api/login', loginRouter);
 
 // Fallback si hay un error
 app.use(endpointDesconocido);
