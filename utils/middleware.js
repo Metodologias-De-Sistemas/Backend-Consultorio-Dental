@@ -57,6 +57,9 @@ const errorHandler = (err, _req, res, next) => {
       .send({ error: true, msg: 'Password incorrecta.' });
   }
 
+  if((errName) === 'jwt malformed'){
+
+  }
   return next(err);
 };
 

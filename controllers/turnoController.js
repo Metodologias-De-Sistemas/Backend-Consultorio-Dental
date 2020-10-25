@@ -1,29 +1,24 @@
 const { StatusCodes } = require('http-status-codes');
 const Turno = require('../models/Turno');
+const Paciente = require('../models/Paciente');
+const { decodearToken } = require('../utils/common');
 const MyError = require('../utils/MyError');
 
 exports.getAll = async (req, res, next) => {
   try {
-    if (!req.token) {
-      res.status(StatusCodes.UNAUTHORIZED).send({
-        error: true,
-        errorMessage: 'No tiene autorizacion para realizar la accion.',
-      });
-    }
+    const turnos = await Turno.find({}).populate('paciente', {
+      nombreCompleto: 1,
+      DNI: 1,
+      edad: 1,
+      numeroTelefono: 1,
+      email: 1,
+      obraSocial: 1,
+    });
 
-    const turnosDocs = await Turno.find({});
-
-    if (!turnosDocs) {
-      res.status(StatusCodes.NOT_FOUND).send({
-        error: true,
-        errorMessage: 'No hay turnos para mostrar en la base de datos.',
-      });
-    }
-
-    res.send({
+    res.status(StatusCodes.OK).send({
       success: true,
-      successMessage: 'Listado de turnos recuperados exitosamente.',
-      data: turnosDocs.map((turnoDoc) => turnoDoc.toJSON()),
+      data: turnos,
+      successMessage: 'Mostrando todos los turnos en la base de datos.',
     });
   } catch (err) {
     next(new MyError(500, `${err.message}`));
@@ -32,117 +27,50 @@ exports.getAll = async (req, res, next) => {
 
 exports.createOne = async (req, res, next) => {
   try {
-    if (!req.token) {
-      res.status(StatusCodes.UNAUTHORIZED).send({
-        error: true,
-        errorMessage: 'No tiene autorizacion para realizar la accion.',
-      });
+    const tokenDecodeado = decodearToken(req.token);
+
+    if (!tokenDecodeado) {
+      throw new MyError(403, 'Credenciales erroneas, error con JWT.');
     }
 
-    const { body } = req;
+    const { prestacion, fecha, observacion, horario } = req.body;
 
-    const turno = new Turno(body);
+    const turnosCoincidentes = await Turno.find({ fecha, horario });
 
-    const turnoGuardado = await turno.save();
+    if (turnosCoincidentes.length) {
+      throw new MyError(400, 'Ya existe un turno para ese dia y horario.');
+    }
+
+    const { id: pacienteId } = tokenDecodeado;
+    const paciente = await Paciente.findById(pacienteId);
+
+    const turno = new Turno({
+      prestacion,
+      fecha,
+      observacion,
+      horario,
+      paciente: pacienteId,
+    });
+
+    let turnoGuardado = await turno.save();
+
+    turnoGuardado = turnoGuardado.toJSON();
+
+    await paciente.turnosProximos.push(turnoGuardado.id);
+    await paciente.save();
 
     res.status(StatusCodes.CREATED).send({
       success: true,
-      successMessage: 'turno creado',
-      data: turnoGuardado.toJSON(),
+      successMessage: 'Turno creado exitosamente.',
+      data: turnoGuardado,
     });
   } catch (err) {
     next(new MyError(500, `${err.message}`));
   }
 };
 
-exports.updateOne = async (req, res, next) => {
-  try {
-    if (!req.token) {
-      res.status(StatusCodes.UNAUTHORIZED).send({
-        error: true,
-        errorMessage: 'No tiene autorizacion para realizar la accion.',
-      });
-    }
+exports.updateOne = async (req, res, next) => {};
 
-    const { id } = req.params;
-    const { body } = req;
+exports.deleteOne = async (req, res, next) => {};
 
-    const turnoModificado = {
-      ...body,
-    };
-
-    const turnoActualizado = await Turno.findByIdAndUpdate(
-      id,
-      turnoModificado,
-      { new: true },
-    );
-
-    if (!turnoActualizado) {
-      res.status(StatusCodes.NOT_FOUND).send({
-        error: true,
-        errorMessage: 'No se pudo actualizar el turno, intente nuevamente',
-      });
-    }
-
-    return {
-      success: true,
-      data: turnoActualizado,
-      successMessage: 'Turno actualizado exitosamente en la base de datos',
-    };
-  } catch (err) {
-    next(new MyError(500, `${err.message}`));
-  }
-};
-
-exports.getAllById = async (req, res, next) => {
-  try {
-    if (!req.token) {
-      res.status(StatusCodes.UNAUTHORIZED).send({
-        error: true,
-        errorMessage: 'No tiene autorizacion para realizar la accion.',
-      });
-    }
-
-    const { id } = req.params;
-
-    const turnosEncontrados = await Turno.find({ paciente: id });
-
-    if (!turnosEncontrados) {
-      res.status(StatusCodes.NOT_FOUND).send({
-        error: true,
-        errorMessage: 'No se encontro ningun turno para el pasiente',
-      });
-    }
-
-    res.send({
-      success: true,
-      successMessage:
-        'Listado de turnos para el paciente recuperados exitosamente',
-      data: turnosEncontrados.map((turnoDoc) => turnoDoc.toJSON()),
-    });
-  } catch (err) {
-    next(new MyError(500, `${err.message}`));
-  }
-
-  exports.deleteOne = async (req, res, next) => {
-    try {
-      if (!req.token) {
-        res.status(StatusCodes.UNAUTHORIZED).send({
-          error: true,
-          errorMessage: 'No tiene autorizacion para realizar la accion.',
-        });
-      }
-
-      const { id } = req.params;
-
-      await Turno.findByIdAndDelete(id);
-
-      res.status(StatusCodes.NO_CONTENT).send({
-        success: true,
-        successMessage: 'El turno fue borrado de la base de datos exitosamente',
-      });
-    } catch (err) {
-      next(new MyError(500, `${err.message}`));
-    }
-  };
-};
+exports.getOne = async (req, res, next) => {};

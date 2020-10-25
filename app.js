@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const pacienteRouter = require('./routers/pacienteRouter');
 const loginRouter = require('./routers/loginRouter');
+const turnoRouter = require('./routers/turnoRouter');
 const {
   errorHandler,
   extraerToken,
@@ -22,6 +23,7 @@ app.use(extraerToken);
 // Endpoints
 app.use('/api/pacientes', pacienteRouter);
 app.use('/api/login', loginRouter);
+app.use('/api/turnos', turnoRouter);
 
 // Fallback si hay un error
 app.use(errorHandler);

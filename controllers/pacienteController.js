@@ -1,3 +1,4 @@
+/* eslint-disable consistent-return */
 const bcrypt = require('bcrypt');
 const { StatusCodes } = require('http-status-codes');
 const { convertirEnMoment, calcularEdad } = require('../utils/utils');
@@ -6,7 +7,9 @@ const MyError = require('../utils/MyError');
 
 exports.getAll = async (_req, res, next) => {
   try {
-    const pacientesDocs = await Paciente.find({}).select('-passwordHasheada');
+    const pacientesDocs = await Paciente.find({})
+      .select('-passwordHasheada')
+      .populate('turnosProximos', { fecha: 1, horario: 1, estado: 1 });
 
     if (!pacientesDocs) {
       res.status(StatusCodes.NOT_FOUND).send({
@@ -17,7 +20,7 @@ exports.getAll = async (_req, res, next) => {
 
     res.send({
       success: true,
-      successMsg: 'Listado de pacientes recuperados exitosamente...',
+      successMsg: 'Listado de pacientes recuperados exitosamente.',
       data: pacientesDocs.map((pacienteDoc) => pacienteDoc.toJSON()),
     });
   } catch (err) {

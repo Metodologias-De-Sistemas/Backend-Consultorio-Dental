@@ -50,7 +50,7 @@ const errorHandler = (err, _req, res, next) => {
         'Maxima longitud para alguno de los campos. verifique los campos asignados.',
     });
   }
-  if (errName === 'jsonwebtokenerror') {
+  if (err.message.includes('jwt malformed')) {
     logger.error('Error en la validacion de JWT');
     return res
       .status(StatusCodes.FORBIDDEN)
@@ -62,6 +62,13 @@ const errorHandler = (err, _req, res, next) => {
     return res
       .status(StatusCodes.BAD_REQUEST)
       .send({ error: true, msg: 'Password incorrecta.' });
+  }
+
+  if (err.message.includes('Ya existe un turno para ese dia y horario')) {
+    logger.error(err.message);
+    return res
+      .status(StatusCodes.BAD_REQUEST)
+      .send({ error: true, errorMessage: 'Ya existe un turno para este dia y horario'});
   }
 
   return next(err);

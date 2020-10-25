@@ -1,12 +1,13 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-param-reassign */
 const mongoose = require('mongoose');
+const { PRESTACIONES } = require('../utils/common');
 
 mongoose.set('useFindAndModify', false);
 mongoose.set('useCreateIndex', true);
 
-const prestacionesEnums = [];
-const horarioEnum = ['mañana', 'tarde'];
+const horarioEnum = ['MATUTINO', 'VESPERTINO'];
+const estadoEnum = ['PENDIENTE', 'ACEPTADO'];
 
 const turnoSchema = new mongoose.Schema({
   paciente: {
@@ -16,7 +17,7 @@ const turnoSchema = new mongoose.Schema({
   },
   prestacion: {
     type: String,
-    enum: prestacionesEnums,
+    enum: PRESTACIONES,
     required: true,
   },
   fecha: {
@@ -32,9 +33,15 @@ const turnoSchema = new mongoose.Schema({
     required: true,
     enum: horarioEnum,
   },
+  estado: {
+    type: String,
+    required: true,
+    enum: estadoEnum,
+    default: 'PENDIENTE',
+  },
 });
 
-turnoSchema.set('toJSON', {
+mongoose.set('toJSON', {
   transform: (document, returnedTurno) => {
     returnedTurno.id = returnedTurno._id.toString();
 
@@ -42,3 +49,5 @@ turnoSchema.set('toJSON', {
     delete returnedTurno.__v;
   },
 });
+
+module.exports = mongoose.model('Turno', turnoSchema);

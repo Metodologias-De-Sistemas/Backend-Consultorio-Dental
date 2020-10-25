@@ -53,7 +53,18 @@ const pacienteSchema = new mongoose.Schema({
     required: true,
     default: 0,
   },
-  historiaClinica: [{ type: mongoose.SchemaTypes.ObjectId, ref: 'Turno' }],
+  turnosProximos: [
+    {
+      type: mongoose.SchemaTypes.ObjectId,
+      ref: 'Turno',
+    },
+  ],
+  historiaClinica: [
+    {
+      type: mongoose.SchemaTypes.ObjectId,
+      ref: 'Consulta',
+    },
+  ],
 });
 
 pacienteSchema.set('toJSON', {

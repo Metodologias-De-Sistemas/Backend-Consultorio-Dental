@@ -21,10 +21,17 @@ exports.login = async (req, res, next) => {
       throw new MyError(400, 'Usuario o contraseña incorrectos');
     }
 
-    const token = jwt.sign({ usuario: usuarioEncontrado.toJSON() }, JWT_SECRET);
-    res
-      .status(StatusCodes.OK)
-      .json({ success: true, usuario: usuarioEncontrado.toJSON(), token });
+    const usuarioJSON = usuarioEncontrado.toJSON();
+
+    const token = jwt.sign(
+      { usuario: usuarioJSON.email, id: usuarioJSON.id },
+      JWT_SECRET,
+    );
+    res.status(StatusCodes.OK).json({
+      success: true,
+      nombreCompleto: usuarioJSON.nombreCompleto,
+      token,
+    });
   } catch (err) {
     next(new MyError(500, `Error en loginController: ${err.message}`));
   }
