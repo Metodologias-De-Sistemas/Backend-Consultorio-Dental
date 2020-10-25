@@ -12,11 +12,6 @@ const pacienteSchema = new mongoose.Schema({
     minlength: 5,
     maxlength: 50,
   },
-  nombreDeUsuario: {
-    type: String,
-    required: true,
-    unique: true,
-  },
   passwordHasheada: {
     type: String,
     required: true,
@@ -45,6 +40,7 @@ const pacienteSchema = new mongoose.Schema({
   },
   email: {
     type: String,
+    unique: true,
     required: true,
     minlength: 10,
   },

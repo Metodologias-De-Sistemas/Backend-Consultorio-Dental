@@ -1,35 +1,37 @@
 const bcrypt = require('bcrypt');
-const { JWT_SECRET } = require('../utils/config');
+const jwt = require('jsonwebtoken');
 const { StatusCodes } = require('http-status-codes');
+const { JWT_SECRET } = require('../utils/config');
 const Paciente = require('../models/Paciente');
 const MyError = require('../utils/MyError');
-const jwt = require('jsonwebtoken');
 
 exports.login = async (req, res) => {
   try {
-    const { nombredeusuario, passwordHasheada } = req.body;
+    const { email, password } = req.body;
     const usuarioEncontrado = await Paciente.findOne({
-      nombreDeUsuario: nombredeusuario,
+      email,
     });
 
-    if (!usuarioEncontrado) {
+    const esLoginValido = await bcrypt.compare(
+      password,
+      usuarioEncontrado.passwordHasheada,
+    );
+
+    if (!usuarioEncontrado || !esLoginValido) {
       res
-        .status(StatusCodes.NOT_FOUND)
-        .send({ msg: 'Usuario o contraseña incorrectos' });
+        .status(StatusCodes.UNAUTHORIZED)
+        .send({ error: true, msg: 'Usuario o contraseña incorrectos' });
     }
 
-    if (!bcrypt.compareSync(passwordHasheada, usuarioEncontrado.passwordHasheada)) {
-      res
-        .status(StatusCodes.NOT_FOUND)
-        .send({ msg: 'Usuario o contraseña incorrectos' });
-    }
+    const token = jwt.sign({ usuario: usuarioEncontrado.toJSON() }, JWT_SECRET);
 
-    let token = jwt.sign({usuario: usuarioEncontrado.toJSON()}, JWT_SECRET);
-    res.status(StatusCodes.OK).json({ok: true,
-              usuario: usuarioEncontrado.toJSON(),
-              token,});
+    res
+      .status(StatusCodes.OK)
+      .json({ success: true, usuario: usuarioEncontrado.toJSON(), token });
   } catch (err) {
-    console.log(err)
-    throw new MyError(`Error en login.`);
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .send({ error: true, msg: `${err.message}` });
+    throw new MyError(`Error en loginController`);
   }
 };
