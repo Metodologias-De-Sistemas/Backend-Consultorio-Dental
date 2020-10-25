@@ -2,10 +2,13 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
-const { endpointDesconocido } = require('./utils/middleware');
 const pacienteRouter = require('./routers/pacienteRouter');
 const loginRouter = require('./routers/loginRouter');
-const { errorHandler, extraerToken } = require('./utils/middleware');
+const {
+  errorHandler,
+  extraerToken,
+  endpointDesconocido,
+} = require('./middleware/middleware');
 
 const app = express();
 

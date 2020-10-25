@@ -5,7 +5,7 @@ const { JWT_SECRET } = require('../utils/config');
 const Paciente = require('../models/Paciente');
 const MyError = require('../utils/MyError');
 
-exports.login = async (req, res) => {
+exports.login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
     const usuarioEncontrado = await Paciente.findOne({
@@ -18,20 +18,14 @@ exports.login = async (req, res) => {
     );
 
     if (!usuarioEncontrado || !esLoginValido) {
-      res
-        .status(StatusCodes.UNAUTHORIZED)
-        .send({ error: true, msg: 'Usuario o contraseña incorrectos' });
+      throw new MyError(400, 'Usuario o contraseña incorrectos');
     }
 
     const token = jwt.sign({ usuario: usuarioEncontrado.toJSON() }, JWT_SECRET);
-
     res
       .status(StatusCodes.OK)
       .json({ success: true, usuario: usuarioEncontrado.toJSON(), token });
   } catch (err) {
-    res
-      .status(StatusCodes.INTERNAL_SERVER_ERROR)
-      .send({ error: true, msg: `${err.message}` });
-    throw new MyError(`Error en loginController`);
+    next(new MyError(500, `Error en loginController: ${err.message}`));
   }
 };
