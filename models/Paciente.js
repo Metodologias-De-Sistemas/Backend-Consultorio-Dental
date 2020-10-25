@@ -53,6 +53,7 @@ const pacienteSchema = new mongoose.Schema({
     required: true,
     default: 0,
   },
+  historiaClinica: [{ type: mongoose.SchemaTypes.ObjectId, ref: 'Turno' }],
 });
 
 pacienteSchema.set('toJSON', {
