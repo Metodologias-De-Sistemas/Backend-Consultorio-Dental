@@ -17,6 +17,7 @@ exports.getAll = async (_req, res, next) => {
 
     res.send({
       success: true,
+      successMsg: 'Listado de pacientes recuperados exitosamente...',
       data: pacientesDocs.map((pacienteDoc) => pacienteDoc.toJSON()),
     });
   } catch (err) {
@@ -43,9 +44,11 @@ exports.createOne = async (req, res, next) => {
 
     const pacienteGuardado = await paciente.save();
 
-    res
-      .status(StatusCodes.CREATED)
-      .send({ success: true, data: pacienteGuardado.toJSON() });
+    res.status(StatusCodes.CREATED).send({
+      success: true,
+      data: pacienteGuardado.toJSON(),
+      successMessage: 'Paciente creado exitosamente en la base de datos.',
+    });
   } catch (err) {
     next(new MyError(500, `${err.message}`));
   }
@@ -70,8 +73,15 @@ exports.updateOne = async (req, res, next) => {
       res.status(StatusCodes.NOT_FOUND).send({
         error: true,
         msg: 'No se pudo actualizar el paciente, intente nuevamente',
+        successMsg: '',
       });
     }
+
+    return {
+      success: true,
+      data: pacienteActualizado,
+      successMsg: 'Paciente actualizado exitosamente en la base de datos.',
+    };
   } catch (err) {
     next(new MyError(500, `${err.message}`));
   }
@@ -88,11 +98,15 @@ exports.getOne = async (req, res, next) => {
     if (!pacienteEncontrado) {
       res.status(StatusCodes.NOT_FOUND).send({
         error: true,
-        msg: 'No se pudo encontrar ningun paciente con el id especificado',
+        errorMsg: 'No se pudo encontrar ningun paciente con el id especificado',
       });
     }
 
-    res.send({ success: true, data: pacienteEncontrado.toJSON() });
+    res.send({
+      success: true,
+      data: pacienteEncontrado.toJSON(),
+      successMsg: `Paciente con el id: ${id} encontrado exitosamente.`,
+    });
   } catch (err) {
     next(new MyError(500, `${err.message}`));
   }
@@ -106,7 +120,7 @@ exports.deleteOne = async (req, res, next) => {
 
     res.status(StatusCodes.NO_CONTENT).send({
       success: true,
-      msg: 'El documento fue borrado de la base de datos exitosamente. ',
+      successMsg: 'El documento fue borrado de la base de datos exitosamente. ',
     });
   } catch (err) {
     next(new MyError(500, `${err.message}`));
