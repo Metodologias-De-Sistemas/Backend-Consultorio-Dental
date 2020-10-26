@@ -1,7 +1,12 @@
 const { StatusCodes } = require('http-status-codes');
+const path = require('path');
+const fs = require('fs');
+const util = require('util');
 const Turno = require('../models/Turno');
 const Paciente = require('../models/Paciente');
+const logger = require('../utils/logger');
 const { decodearToken } = require('../utils/common');
+const { mailSender, getMailOptions } = require('../utils/emailSender');
 const MyError = require('../utils/MyError');
 
 exports.getAll = async (req, res, next) => {
@@ -59,6 +64,22 @@ exports.createOne = async (req, res, next) => {
     await paciente.turnosProximos.push(turnoGuardado.id);
     await paciente.save();
 
+    const htmlPath = path.join(
+      __dirname,
+      '../utils/HTML_templates/turnoCreado.html',
+    );
+
+    const htmlTurnoCreado = await fs.promises.readFile(htmlPath, 'utf-8');
+
+    const mailOpts = getMailOptions({
+      to: `${paciente.email}`,
+      subject: 'Consultorio Dental Sonrisa Feliz - Confirmacion Turno Creado',
+      html: htmlTurnoCreado,
+    });
+
+    await mailSender.sendMail(mailOpts);
+    logger.info('Email enviado.');
+
     res.status(StatusCodes.CREATED).send({
       success: true,
       successMessage: 'Turno creado exitosamente.',
@@ -69,8 +90,131 @@ exports.createOne = async (req, res, next) => {
   }
 };
 
-exports.updateOne = async (req, res, next) => {};
+exports.updateOne = async (req, res, next) => {
+  try {
+    const tokenDecodeado = decodearToken(req.token);
+    const usuario = await Paciente.findById(tokenDecodeado.id);
 
-exports.deleteOne = async (req, res, next) => {};
+    if (!tokenDecodeado || usuario.rol !== 1) {
+      throw new MyError(403, 'Credenciales erroneas, error con JWT.');
+    }
+
+    const { id } = req.params;
+
+    if (!id) {
+      throw new MyError(
+        404,
+        'No se puede encontrar ningun turno con el ID dado.',
+      );
+    }
+
+    const { body } = req;
+
+    const turnoModificado = {
+      ...body,
+    };
+
+    const turnoActualizado = await Turno.findByIdAndUpdate(
+      id,
+      turnoModificado,
+      {
+        new: true,
+      },
+    ).populate('paciente', {
+      email: 1,
+    });
+
+    if (!turnoActualizado) {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+        error: true,
+        errorMessage: 'No se pudo actualizar el turno, intente nuevamente',
+      });
+    }
+
+    const { email: pacienteEmail } = turnoActualizado.paciente;
+
+    const htmlPath = path.join(
+      __dirname,
+      '../utils/HTML_templates/turnoModificado.html',
+    );
+
+    const htmlTurnoModificado = await fs.promises.readFile(htmlPath, 'utf-8');
+
+    const mailOpts = getMailOptions({
+      to: `${pacienteEmail}`,
+      subject:
+        'Consultorio Dental Sonrisa Feliz - Confirmacion Turno Modificado',
+      html: htmlTurnoModificado,
+    });
+
+    await mailSender.sendMail(mailOpts);
+    logger.info('Email enviado.');
+
+    return res.send({
+      success: true,
+      data: turnoActualizado,
+      successMessage: 'Turno actualizado exitosamente en la base de datos',
+    });
+  } catch (err) {
+    next(new MyError(500, `${err.message}`));
+  }
+};
+
+exports.deleteOne = async (req, res, next) => {
+  try {
+    const tokenDecodeado = decodearToken(req.token);
+    const usuario = await Paciente.findById(tokenDecodeado.id);
+
+    if (!tokenDecodeado || usuario.rol !== 1) {
+      throw new MyError(403, 'Credenciales erroneas, error con JWT.');
+    }
+
+    const { id } = req.params;
+
+    if (!id) {
+      throw new MyError(
+        404,
+        'No se puede encontrar ningun turno con el ID dado.',
+      );
+    }
+
+    const turnoBorrado = await Turno.findByIdAndDelete(id).populate(
+      'paciente',
+      { email: 1 },
+    );
+
+    if (!turnoBorrado) {
+      res.send({
+        success: true,
+        successMessage: 'Turno no se encuentra en la base de datos.',
+      });
+    }
+
+    const { email: emailPaciente } = turnoBorrado.paciente;
+    const htmlPath = path.join(
+      __dirname,
+      '../utils/HTML_templates/turnoEliminado.html',
+    );
+
+    const htmlTurnoBorrado = await fs.promises.readFile(htmlPath, 'utf-8');
+    const mailOpts = getMailOptions({
+      to: `${emailPaciente}`,
+      subject:
+        'Consultorio Dental Sonrisa Feliz - Eliminacion de Turno Solicitado.',
+      html: htmlTurnoBorrado,
+    });
+
+    await mailSender.sendMail(mailOpts);
+    logger.info('Email enviado.');
+
+    return res.send({
+      success: true,
+      successMessage: 'Turno borrado exitosamente de la base de datos.',
+      data: turnoBorrado,
+    });
+  } catch (err) {
+    console.error(err);
+  }
+};
 
 exports.getOne = async (req, res, next) => {};

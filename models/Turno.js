@@ -18,7 +18,6 @@ const turnoSchema = new mongoose.Schema({
   prestacion: {
     type: String,
     enum: PRESTACIONES,
-    required: true,
   },
   fecha: {
     type: String,

@@ -66,9 +66,10 @@ const errorHandler = (err, _req, res, next) => {
 
   if (err.message.includes('Ya existe un turno para ese dia y horario')) {
     logger.error(err.message);
-    return res
-      .status(StatusCodes.BAD_REQUEST)
-      .send({ error: true, errorMessage: 'Ya existe un turno para este dia y horario'});
+    return res.status(StatusCodes.BAD_REQUEST).send({
+      error: true,
+      errorMessage: 'Ya existe un turno para este dia y horario',
+    });
   }
 
   return next(err);

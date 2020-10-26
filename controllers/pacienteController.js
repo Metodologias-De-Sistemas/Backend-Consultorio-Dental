@@ -20,7 +20,7 @@ exports.getAll = async (_req, res, next) => {
 
     res.send({
       success: true,
-      successMsg: 'Listado de pacientes recuperados exitosamente.',
+      successMessage: 'Listado de pacientes recuperados exitosamente.',
       data: pacientesDocs.map((pacienteDoc) => pacienteDoc.toJSON()),
     });
   } catch (err) {
@@ -75,15 +75,14 @@ exports.updateOne = async (req, res, next) => {
     if (!pacienteActualizado) {
       res.status(StatusCodes.NOT_FOUND).send({
         error: true,
-        msg: 'No se pudo actualizar el paciente, intente nuevamente',
-        successMsg: '',
+        errorMessage: 'No se pudo actualizar el paciente, intente nuevamente',
       });
     }
 
     return {
       success: true,
       data: pacienteActualizado,
-      successMsg: 'Paciente actualizado exitosamente en la base de datos.',
+      successMessage: 'Paciente actualizado exitosamente en la base de datos.',
     };
   } catch (err) {
     next(new MyError(500, `${err.message}`));
@@ -101,14 +100,15 @@ exports.getOne = async (req, res, next) => {
     if (!pacienteEncontrado) {
       res.status(StatusCodes.NOT_FOUND).send({
         error: true,
-        errorMsg: 'No se pudo encontrar ningun paciente con el id especificado',
+        errorMessage:
+          'No se pudo encontrar ningun paciente con el id especificado',
       });
     }
 
     res.send({
       success: true,
       data: pacienteEncontrado.toJSON(),
-      successMsg: `Paciente con el id: ${id} encontrado exitosamente.`,
+      successMessage: `Paciente con el id: ${id} encontrado exitosamente.`,
     });
   } catch (err) {
     next(new MyError(500, `${err.message}`));
@@ -123,7 +123,8 @@ exports.deleteOne = async (req, res, next) => {
 
     res.status(StatusCodes.NO_CONTENT).send({
       success: true,
-      successMsg: 'El documento fue borrado de la base de datos exitosamente. ',
+      successMessage:
+        'El documento fue borrado de la base de datos exitosamente. ',
     });
   } catch (err) {
     next(new MyError(500, `${err.message}`));

@@ -10,11 +10,14 @@ const mailSender = nodemailer.createTransport({
   },
 });
 
-const getMailOptions = (to, subject, text) => {
+const getMailOptions = (opts) => {
+  const { to, subject, text, html } = opts;
+
   return {
     from: `${GMAIL_USER}`,
     to,
     subject,
+    html,
     text,
   };
 };
