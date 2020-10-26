@@ -22,14 +22,23 @@ exports.login = async (req, res, next) => {
     }
 
     const usuarioJSON = usuarioEncontrado.toJSON();
+    delete usuarioJSON.historiaClinica;
+    delete usuarioJSON.turnosProximos;
 
-    const token = jwt.sign(
-      { usuario: usuarioJSON.email, id: usuarioJSON.id },
-      JWT_SECRET,
-    );
+    const token = jwt.sign(usuarioJSON, JWT_SECRET);
     res.status(StatusCodes.OK).json({
       success: true,
-      nombreCompleto: usuarioJSON.nombreCompleto,
+      successMessage: 'Se realizo el login correctamente.',
+      id: usuarioJSON.id,
+      email: usuarioJSON.email,
+      paciente: {
+        rol: usuarioJSON.rol,
+        nombreCompleto: usuarioJSON.nombreCompleto,
+        fechaNacimiento: usuarioJSON.fechaNacimiento,
+        DNI: usuarioJSON.DNI,
+        obraSocial: usuarioJSON.obraSocial,
+        edad: usuarioJSON.edad,
+      },
       token,
     });
   } catch (err) {

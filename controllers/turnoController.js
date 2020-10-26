@@ -38,10 +38,27 @@ exports.createOne = async (req, res, next) => {
       throw new MyError(403, 'Credenciales erroneas, error con JWT.');
     }
 
-    const { prestacion, fecha, observacion, horario } = req.body;
+    const { fecha, observacion, horario } = req.body;
 
-    const turnosCoincidentes = await Turno.find({ fecha, horario });
-
+    let turnosCoincidentes;
+    if (horario < 12) {
+      // turno maniana
+      turnosCoincidentes = await Turno.find({
+        fecha,
+        horario: {
+          $gte: 8,
+          $lte: 11,
+        },
+      });
+    } else {
+      turnosCoincidentes = await Turno.find({
+        fecha,
+        horario: {
+          $gte: 16,
+          $lte: 19,
+        },
+      });
+    }
     if (turnosCoincidentes.length) {
       throw new MyError(400, 'Ya existe un turno para ese dia y horario.');
     }
@@ -49,8 +66,11 @@ exports.createOne = async (req, res, next) => {
     const { id: pacienteId } = tokenDecodeado;
     const paciente = await Paciente.findById(pacienteId);
 
+    if (!paciente) {
+      throw new MyError(500, 'No hay paciente con el ID determinado.');
+    }
+
     const turno = new Turno({
-      prestacion,
       fecha,
       observacion,
       horario,
@@ -86,6 +106,7 @@ exports.createOne = async (req, res, next) => {
       data: turnoGuardado,
     });
   } catch (err) {
+    logger.error('Email para creacion del turno no fue enviado.');
     next(new MyError(500, `${err.message}`));
   }
 };
@@ -210,11 +231,12 @@ exports.deleteOne = async (req, res, next) => {
     return res.send({
       success: true,
       successMessage: 'Turno borrado exitosamente de la base de datos.',
-      data: turnoBorrado,
     });
   } catch (err) {
-    console.error(err);
+    next(new MyError(500, `${err.message}`));
   }
 };
 
-exports.getOne = async (req, res, next) => {};
+exports.getOne = async (req, res, next) => {
+  const tokenDecodeado = decodearToken(req.token);
+};

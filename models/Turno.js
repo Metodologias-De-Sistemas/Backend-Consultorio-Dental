@@ -6,7 +6,6 @@ const { PRESTACIONES } = require('../utils/common');
 mongoose.set('useFindAndModify', false);
 mongoose.set('useCreateIndex', true);
 
-const horarioEnum = ['MATUTINO', 'VESPERTINO'];
 const estadoEnum = ['PENDIENTE', 'ACEPTADO'];
 
 const turnoSchema = new mongoose.Schema({
@@ -28,9 +27,8 @@ const turnoSchema = new mongoose.Schema({
     maxlength: 500,
   },
   horario: {
-    type: String,
+    type: Number,
     required: true,
-    enum: horarioEnum,
   },
   estado: {
     type: String,
