@@ -5,6 +5,8 @@ const morgan = require('morgan');
 const pacienteRouter = require('./routers/pacienteRouter');
 const loginRouter = require('./routers/loginRouter');
 const turnoRouter = require('./routers/turnoRouter');
+const consultaRouter = require('./routers/consultaRouter');
+
 const {
   errorHandler,
   extraerToken,
@@ -24,6 +26,7 @@ app.use(extraerToken);
 app.use('/api/pacientes', pacienteRouter);
 app.use('/api/login', loginRouter);
 app.use('/api/turnos', turnoRouter);
+app.use('/api/consultas', consultaRouter);
 
 // Fallback si hay un error
 app.use(errorHandler);

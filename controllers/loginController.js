@@ -24,6 +24,8 @@ exports.login = async (req, res, next) => {
     const usuarioJSON = usuarioEncontrado.toJSON();
     delete usuarioJSON.historiaClinica;
     delete usuarioJSON.turnosProximos;
+    const rolUsuario = usuarioJSON.rol;
+    delete usuarioJSON.rol;
 
     const token = jwt.sign(usuarioJSON, JWT_SECRET);
     res.status(StatusCodes.OK).json({
@@ -32,7 +34,7 @@ exports.login = async (req, res, next) => {
       id: usuarioJSON.id,
       email: usuarioJSON.email,
       paciente: {
-        rol: usuarioJSON.rol,
+        rol: rolUsuario,
         nombreCompleto: usuarioJSON.nombreCompleto,
         fechaNacimiento: usuarioJSON.fechaNacimiento,
         DNI: usuarioJSON.DNI,

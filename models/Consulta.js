@@ -8,7 +8,7 @@ mongoose.set('useCreateIndex', true);
 
 const consultaSchema = new mongoose.Schema({
   paciente: {
-    type: mongoose.SchemaTypes.ObjectIdj,
+    type: mongoose.SchemaTypes.ObjectId,
     ref: 'Paciente',
     required: true,
   },

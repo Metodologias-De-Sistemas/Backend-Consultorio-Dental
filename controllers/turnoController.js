@@ -236,7 +236,44 @@ exports.deleteOne = async (req, res, next) => {
     next(new MyError(500, `${err.message}`));
   }
 };
-
+// gaston estuvo aqui
 exports.getOne = async (req, res, next) => {
-  const tokenDecodeado = decodearToken(req.token);
+  try {
+    const tokenDecodeado = decodearToken(req.token);
+    const usuario = await Paciente.findById(tokenDecodeado.id);
+
+    if (!tokenDecodeado || usuario.rol !== 1) {
+      throw new MyError(403, 'Credenciales erroneas, error con JWT.');
+    }
+
+    const { id } = req.params;
+
+    if (!id) {
+      throw new MyError(404, 'No se pudo encotar turno con el ID dado.');
+    }
+
+    const turnoEncorntrador = await Turno.findById(id).populated('paciente', {
+      nombreCompleto: 1,
+      DNI: 1,
+      edad: 1,
+      numeroTelefono: 1,
+      email: 1,
+      obraSocial: 1,
+    });
+
+    if (!turnoEncorntrador) {
+      res.status(StatusCodes.NOT_FOUND).send({
+        error: true,
+        errorMessage: 'No se puedo encontrar un turno con el ID especificado.',
+      });
+    }
+
+    res.send({
+      success: true,
+      data: turnoEncorntrador.toJSON(),
+      successMessage: `Paciente con el id: ${id} encontrado exitosamente.`,
+    });
+  } catch (err) {
+    next(new MyError(500, `${err.message}`));
+  }
 };

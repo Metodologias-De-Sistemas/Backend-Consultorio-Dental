@@ -56,10 +56,6 @@ const errorHandler = (err, _req, res, next) => {
       .status(StatusCodes.BAD_REQUEST)
       .send({ error: true, msg: 'Password incorrecta.' });
   }
-
-  if((errName) === 'jwt malformed'){
-
-  }
   return next(err);
 };
 
