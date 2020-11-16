@@ -279,3 +279,39 @@ exports.getOne = async (req, res, next) => {
     next(new MyError(500, `${err.message}`));
   }
 };
+
+exports.turnosAceptados = async (req, res, next) => {
+  try {
+    const tokenDecodeado = decodearToken(req.token);
+    const usuario = await Paciente.findById(tokenDecodeado.id);
+    if (!tokenDecodeado || usuario.rol !== 1) {
+      throw new MyError(403, 'Credenciales erroneas, error con JWT.');
+    }
+
+    const turnosAceptados = await Turno.find({ estado: 'ACEPTADO' }).populate(
+      'paciente',
+      {
+        nombreCompleto: 1,
+        DNI: 1,
+        edad: 1,
+        numeroTelefono: 1,
+        email: 1,
+        obraSocial: 1,
+      },
+    );
+
+    if (!turnosAceptados) {
+      res.send({
+        error: true,
+        errorMessage: 'No hay turnos aceptados para mostrar.',
+      });
+    }
+    res.send({
+      success: true,
+      data: turnosAceptados,
+      successMessage: 'Turnos aceptados, obtenidos exitosamente',
+    });
+  } catch (err) {
+    next(new MyError(500, `${err.message}`));
+  }
+};
