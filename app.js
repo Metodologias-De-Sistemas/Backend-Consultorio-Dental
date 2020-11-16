@@ -6,6 +6,7 @@ const pacienteRouter = require('./routers/pacienteRouter');
 const loginRouter = require('./routers/loginRouter');
 const turnoRouter = require('./routers/turnoRouter');
 const consultaRouter = require('./routers/consultaRouter');
+const pagoRouter = require('./routers/pagoRouter');
 
 const {
   errorHandler,
@@ -27,6 +28,7 @@ app.use('/api/pacientes', pacienteRouter);
 app.use('/api/login', loginRouter);
 app.use('/api/turnos', turnoRouter);
 app.use('/api/consultas', consultaRouter);
+app.use('/api/turnos/pago', pagoRouter);
 
 // Fallback si hay un error
 app.use(errorHandler);

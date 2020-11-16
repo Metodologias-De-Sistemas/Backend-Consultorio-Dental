@@ -236,7 +236,9 @@ exports.deleteOne = async (req, res, next) => {
     next(new MyError(500, `${err.message}`));
   }
 };
+
 // gaston estuvo aqui
+
 exports.getOne = async (req, res, next) => {
   try {
     const tokenDecodeado = decodearToken(req.token);
