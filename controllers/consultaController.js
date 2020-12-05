@@ -42,7 +42,7 @@ exports.createOne = async (req, res, next) => {
       throw new MyError(403, 'Credenciales erroneas, error con JWT.');
     }
 
-    const { turnoId, observacion: nuevaObservacion } = req.body;
+    const { turnoId } = req.body;
     const turnoEncontrado = await Turno.findByIdAndDelete(turnoId);
     if (!turnoEncontrado) {
       throw new MyError(
@@ -55,7 +55,8 @@ exports.createOne = async (req, res, next) => {
       paciente: turnoEncontrado.paciente,
       prestacion: turnoEncontrado.prestacion,
       fecha: turnoEncontrado.fecha,
-      observacion: nuevaObservacion,
+      horario: turnoEncontrado.horario,
+      sintomas: turnoEncontrado.observacion,
     });
 
     let consultaGuardada = await consulta.save();

@@ -17,11 +17,11 @@ exports.getAll = async (_req, res, next) => {
         msg: 'No hay pacientes para mostrar en la base de datos',
       });
     }
-
+    const data = pacientesDocs.filter((paciente) => paciente.rol === 0);
     res.send({
       success: true,
       successMessage: 'Listado de pacientes recuperados exitosamente.',
-      data: pacientesDocs.map((pacienteDoc) => pacienteDoc.toJSON()),
+      data: data.map((pacienteDoc) => pacienteDoc.toJSON()),
     });
   } catch (err) {
     next(new MyError(500, `${err.message}`));

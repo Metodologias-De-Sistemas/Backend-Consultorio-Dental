@@ -21,10 +21,14 @@ const consultaSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  observacion: {
+  horario: {
+    type: Number,
+    required: true,
+  },
+  sintomas: {
     type: String,
     maxlength: 500,
-  },
+  }
 });
 
 consultaSchema.set('toJSON', {
