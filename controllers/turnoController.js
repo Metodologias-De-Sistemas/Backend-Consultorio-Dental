@@ -254,7 +254,7 @@ exports.getOne = async (req, res, next) => {
       throw new MyError(404, 'No se pudo encotar turno con el ID dado.');
     }
 
-    const turnoEncorntrador = await Turno.findById(id).populated('paciente', {
+    const turnoEncorntrador = await Turno.findById(id).populate('paciente', {
       nombreCompleto: 1,
       DNI: 1,
       edad: 1,
