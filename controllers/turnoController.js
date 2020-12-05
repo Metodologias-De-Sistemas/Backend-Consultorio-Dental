@@ -336,8 +336,8 @@ exports.getFechasOcupadas = async (req, res, next) => {
 
     const mapDeFechas = new Map();
 
-    // inicializo el mapa con keys de tipo string o fecha, y valores en 0, sirve como
-    // contador para la proxima operacion.
+    // inicializo el mapa con keys de tipo string o fecha, y valores en 0, sirve
+    // como contador para la proxima operacion.
     diasOcupados.forEach(({ fecha }) => mapDeFechas.set(fecha, 0));
 
     diasOcupados.forEach(({ fecha }) =>
@@ -346,7 +346,7 @@ exports.getFechasOcupadas = async (req, res, next) => {
 
     const arrFechasOcupadas = [];
 
-    mapDeFechas.forEach((key, value) => {
+    mapDeFechas.forEach((value, key) => {
       if (value >= 2) {
         arrFechasOcupadas.push(key);
       }
