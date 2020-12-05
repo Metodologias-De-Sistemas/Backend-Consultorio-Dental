@@ -1,7 +1,6 @@
 const { StatusCodes } = require('http-status-codes');
 const path = require('path');
 const fs = require('fs');
-const util = require('util');
 const Turno = require('../models/Turno');
 const Paciente = require('../models/Paciente');
 const logger = require('../utils/logger');
@@ -284,6 +283,7 @@ exports.turnosAceptados = async (req, res, next) => {
   try {
     const tokenDecodeado = decodearToken(req.token);
     const usuario = await Paciente.findById(tokenDecodeado.id);
+
     if (!tokenDecodeado || usuario.rol !== 1) {
       throw new MyError(403, 'Credenciales erroneas, error con JWT.');
     }
@@ -310,6 +310,51 @@ exports.turnosAceptados = async (req, res, next) => {
       success: true,
       data: turnosAceptados,
       successMessage: 'Turnos aceptados, obtenidos exitosamente',
+    });
+  } catch (err) {
+    next(new MyError(500, `${err.message}`));
+  }
+};
+
+exports.getFechasOcupadas = async (req, res, next) => {
+  try {
+    const tokenDecodeado = decodearToken(req.token);
+    const usuario = await Paciente.findById(tokenDecodeado.id);
+
+    if (!tokenDecodeado || usuario.rol !== 1) {
+      throw new MyError(403, 'Credenciales erroneas, error con JWT.');
+    }
+
+    const turnosPedidos = await Turno.find({});
+    const diasOcupados = turnosPedidos.map((turno) => {
+      return {
+        fecha: turno.fecha,
+        horario: turno.horario,
+      };
+    });
+
+    const mapDeFechas = new Map();
+
+    // inicializo el mapa con keys de tipo string o fecha, y valores en 0, sirve como
+    // contador para la proxima operacion.
+    diasOcupados.forEach(({ fecha }) => mapDeFechas.set(fecha, 0));
+
+    diasOcupados.forEach(({ fecha }) =>
+      mapDeFechas.set(fecha, mapDeFechas.get(fecha) + 1),
+    );
+
+    const arrFechasOcupadas = [];
+
+    mapDeFechas.forEach((key, value) => {
+      if (value >= 2) {
+        arrFechasOcupadas.push(key);
+      }
+    });
+
+    return res.send({
+      data: arrFechasOcupadas,
+      msg: 'Recuperando fechas ocupadas.',
+      success: true,
     });
   } catch (err) {
     next(new MyError(500, `${err.message}`));
