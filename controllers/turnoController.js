@@ -58,6 +58,7 @@ exports.createOne = async (req, res, next) => {
         },
       });
     }
+
     if (turnosCoincidentes.length) {
       throw new MyError(400, 'Ya existe un turno para ese dia y horario.');
     }
@@ -279,7 +280,7 @@ exports.getOne = async (req, res, next) => {
   }
 };
 
-exports.turnosAceptados = async (req, res, next) => {
+exports.getTurnosAceptados = async (req, res, next) => {
   try {
     const tokenDecodeado = decodearToken(req.token);
     const usuario = await Paciente.findById(tokenDecodeado.id);
