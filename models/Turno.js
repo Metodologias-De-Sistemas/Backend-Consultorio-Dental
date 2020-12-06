@@ -40,6 +40,10 @@ const turnoSchema = new mongoose.Schema({
     type: String,
     default: 'NO PAGADO',
   },
+  urlFoto: {
+    type: String,
+    required: true,
+  },
 });
 
 mongoose.set('toJSON', {

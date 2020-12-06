@@ -7,6 +7,11 @@ const {
   NODE_ENV,
   GMAIL_USER,
   GMAIL_PASS,
+  AWS_ACCESS_KEY_ID,
+  AWS_BUCKET_NAME,
+  AWS_REGION,
+  AWS_SECRET_ACCESS_KEY,
+  AWS_S3_BASE_URL,
 } = process.env;
 
 module.exports = {
@@ -16,4 +21,11 @@ module.exports = {
   NODE_ENV,
   GMAIL_USER,
   GMAIL_PASS,
+  AWS_DATA: {
+    AWS_SECRET_ACCESS_KEY,
+    AWS_ACCESS_KEY_ID,
+    AWS_REGION,
+    AWS_BUCKET_NAME,
+    AWS_S3_BASE_URL,
+  },
 };
