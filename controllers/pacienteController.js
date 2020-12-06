@@ -9,7 +9,8 @@ exports.getAll = async (_req, res, next) => {
   try {
     const pacientesDocs = await Paciente.find({})
       .select('-passwordHasheada')
-      .populate('turnosProximos', { fecha: 1, horario: 1, estado: 1 });
+      .populate('turnosProximos', { fecha: 1, horario: 1, estado: 1 })
+      .populate('historiaClinica', { fecha: 1 , horario: 1, prestacion: 1, sintomas: 1});
 
     if (!pacientesDocs) {
       res.status(StatusCodes.NOT_FOUND).send({
@@ -95,7 +96,9 @@ exports.getOne = async (req, res, next) => {
 
     const pacienteEncontrado = await Paciente.findById(id)
       .select('-passwordHasheada')
-      .populate('turnosProximos', { fecha: 1, horario: 1, estado: 1, pago: 1, observacion: 1, prestacion: 1});
+      .populate('turnosProximos', { fecha: 1, horario: 1, estado: 1, pago: 1, observacion: 1, prestacion: 1})
+      .populate('historiaClinica', { fecha: 1 , horario: 1, prestacion: 1, sintomas: 1});
+
 
     if (!pacienteEncontrado) {
       res.status(StatusCodes.NOT_FOUND).send({
