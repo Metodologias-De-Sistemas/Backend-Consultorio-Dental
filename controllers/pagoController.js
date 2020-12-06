@@ -23,7 +23,7 @@ exports.pagarTurno = async (req, res, next) => {
       res.status(StatusCodes.NOT_FOUND).send({
         error: true,
         errorMessage:
-          'No se puedo encontrar un turno con el ID especificado, no se puede pagar.',
+          'No se puedo pagar.',
       });
     }
 
@@ -38,11 +38,6 @@ exports.pagarTurno = async (req, res, next) => {
       totalAPagar,
     );
 
-    //const result = await htmlToBytes(reciboHTML, nombreCompleto);
-
-    //res.set('Content-Type', 'application/pdf');
-    //res.send(result);
-
     const mailOpts = getMailOptions({
       to: `${email}`,
       subject: 'Consultorio Dental Sonrisa Feliz - Comprobante de pago.',
@@ -52,7 +47,7 @@ exports.pagarTurno = async (req, res, next) => {
     await mailSender.sendMail(mailOpts);
     logger.info('Email enviado.');
 
-    res.status(StatusCodes.CREATED).send({
+    res.status(StatusCodes.OK).send({
       success: true,
       successMessage: 'Pago realizado correctamente.',
     });
