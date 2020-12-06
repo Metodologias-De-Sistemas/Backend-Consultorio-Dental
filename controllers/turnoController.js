@@ -6,6 +6,7 @@ const Paciente = require('../models/Paciente');
 const logger = require('../utils/logger');
 const { decodearToken } = require('../utils/common');
 const { mailSender, getMailOptions } = require('../utils/emailSender');
+const { subirFoto } = require('../utils/utils');
 const MyError = require('../utils/MyError');
 
 exports.getAll = async (req, res, next) => {
@@ -37,7 +38,7 @@ exports.createOne = async (req, res, next) => {
       throw new MyError(403, 'Credenciales erroneas, error con JWT.');
     }
 
-    const { fecha, observacion, horario } = req.body;
+    const { fecha, observacion, horario, foto } = req.body;
 
     let turnosCoincidentes;
     if (horario < 12) {
@@ -70,11 +71,14 @@ exports.createOne = async (req, res, next) => {
       throw new MyError(500, 'No hay paciente con el ID determinado.');
     }
 
+    const fotoSubida = await subirFoto(foto, paciente.nombreCompleto, fecha);
+
     const turno = new Turno({
       fecha,
       observacion,
       horario,
       paciente: pacienteId,
+      urlFoto: fotoSubida,
     });
 
     let turnoGuardado = await turno.save();
@@ -318,9 +322,8 @@ exports.getTurnosAceptados = async (req, res, next) => {
 exports.getFechasOcupadas = async (req, res, next) => {
   try {
     const tokenDecodeado = decodearToken(req.token);
-    const usuario = await Paciente.findById(tokenDecodeado.id);
 
-    if (!tokenDecodeado || usuario.rol !== 1) {
+    if (!tokenDecodeado) {
       throw new MyError(403, 'Credenciales erroneas, error con JWT.');
     }
 

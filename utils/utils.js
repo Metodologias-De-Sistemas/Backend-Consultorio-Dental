@@ -1,7 +1,50 @@
 const moment = require('moment-business-days');
 const pdf = require('html-pdf');
 const Promise = require('bluebird');
+
 const options = { format: 'Letter' };
+const s3Bucket = require('./aws-config');
+const { AWS_DATA } = require('./config');
+
+async function subirAS3Bucket(opts) {
+  const { AWS_S3_BASE_URL } = AWS_DATA;
+
+  const data = {
+    Key: opts.key,
+    Body: opts.buffer,
+    ContentEncoding: 'base64',
+    ContentType: 'image/jpeg',
+    ACL: 'public-read',
+  };
+
+  return new Promise((resolve, reject) => {
+    s3Bucket.putObject(data, (err) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(AWS_S3_BASE_URL + opts.key);
+      }
+    });
+  });
+}
+
+function base64ToBuffer(base64) {
+  const base64Str = base64.replace(/^data:image\/\w+;base64,/, '');
+
+  return Buffer.from(base64Str, 'base64');
+}
+
+exports.subirFoto = async (base64, nombre, fecha) => {
+  const bufferFoto = base64ToBuffer(base64);
+  const momentDate = moment(fecha).format('YYYY-MM-DD');
+
+  const url = await subirAS3Bucket({
+    key: `${nombre.replace(/\s/g, '')}/${momentDate}`,
+    buffer: bufferFoto,
+  });
+
+  return url;
+};
 
 exports.convertirEnMoment = (fecha) => {
   return moment(fecha);
@@ -9,9 +52,9 @@ exports.convertirEnMoment = (fecha) => {
 
 exports.calcularEdad = (fechaDeNacimiento) => {
   const edad = fechaDeNacimiento.year();
-  const esteAño = moment().year();
+  const esteAnio = moment().year();
 
-  return esteAño - edad;
+  return esteAnio - edad;
 };
 
 exports.recibo = (
@@ -121,8 +164,7 @@ exports.recibo = (
         .rtl table tr td:nth-child(2) {
           text-align: left;
         }
-      </style>
-    </head>
+      </style> </head>
   
     <body>
       <div class="invoice-box">
@@ -202,14 +244,13 @@ exports.recibo = (
 };
 
 exports.htmlToBytes = async (html) => {
-  const todaysDate = moment().format('YYYY-MM-DD hhmmss');
   const pdfResult = pdf.create(html, options);
 
+  // eslint-disable-next-line no-proto
   const pdfToBuffer = Promise.promisify(pdfResult.__proto__.toBuffer, {
     context: pdfResult,
   });
 
-  const result = await pdfToBuffer();
-
-  return result;
+  // eslint-disable-next-line no-return-await
+  return await pdfToBuffer();
 };
