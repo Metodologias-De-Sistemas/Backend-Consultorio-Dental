@@ -22,6 +22,12 @@ exports.recibo = (
   totalAPagar,
 ) => {
   const fechaActual = moment().format('YYYY-MM-DD');
+  let nTarjeta = "";
+  for (i = 0; i < numTarjeta.length - 4; i++) {
+    nTarjeta += "*";
+  }
+  nTarjeta += numTarjeta.slice(-4);
+
   const content = `<!DOCTYPE html>
   <html>
     <head>
@@ -155,7 +161,7 @@ exports.recibo = (
                   </td>
   
                   <td>
-                    ${nombreCompleto} Garcias<br />
+                    ${nombreCompleto}<br />
                     ${email}
                   </td>
                 </tr>
@@ -172,7 +178,7 @@ exports.recibo = (
           <tr class="details">
             <td>Tarjeta</td>
   
-            <td></td>
+            <td>${nTarjeta}</td>
           </tr>
   
           <tr class="heading">
