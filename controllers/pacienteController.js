@@ -17,11 +17,11 @@ exports.getAll = async (_req, res, next) => {
         msg: 'No hay pacientes para mostrar en la base de datos',
       });
     }
-
+    const data = pacientesDocs.filter((paciente) => paciente.rol === 0);
     res.send({
       success: true,
       successMessage: 'Listado de pacientes recuperados exitosamente.',
-      data: pacientesDocs.map((pacienteDoc) => pacienteDoc.toJSON()),
+      data: data.map((pacienteDoc) => pacienteDoc.toJSON()),
     });
   } catch (err) {
     next(new MyError(500, `${err.message}`));
@@ -93,9 +93,9 @@ exports.getOne = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    const pacienteEncontrado = await Paciente.findById(id).select(
-      '-passwordHasheada',
-    );
+    const pacienteEncontrado = await Paciente.findById(id)
+      .select('-passwordHasheada')
+      .populate('turnosProximos', { fecha: 1, horario: 1, estado: 1, pago: 1, observacion: 1, prestacion: 1});
 
     if (!pacienteEncontrado) {
       res.status(StatusCodes.NOT_FOUND).send({

@@ -243,13 +243,11 @@ exports.getOne = async (req, res, next) => {
   try {
     const tokenDecodeado = decodearToken(req.token);
     const usuario = await Paciente.findById(tokenDecodeado.id);
-
     if (!tokenDecodeado || usuario.rol !== 1) {
       throw new MyError(403, 'Credenciales erroneas, error con JWT.');
     }
 
     const { id } = req.params;
-
     if (!id) {
       throw new MyError(404, 'No se pudo encotar turno con el ID dado.');
     }

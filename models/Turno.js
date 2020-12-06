@@ -36,6 +36,10 @@ const turnoSchema = new mongoose.Schema({
     enum: estadoEnum,
     default: 'PENDIENTE',
   },
+  pago: {
+    type: String,
+    default: 'NO PAGADO',
+  },
 });
 
 mongoose.set('toJSON', {
