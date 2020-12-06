@@ -93,9 +93,9 @@ exports.getOne = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    const pacienteEncontrado = await Paciente.findById(id).select(
-      '-passwordHasheada',
-    );
+    const pacienteEncontrado = await Paciente.findById(id)
+      .select('-passwordHasheada')
+      .populate('turnosProximos', { fecha: 1, horario: 1, estado: 1, pago: 1, observacion: 1, prestacion: 1});
 
     if (!pacienteEncontrado) {
       res.status(StatusCodes.NOT_FOUND).send({

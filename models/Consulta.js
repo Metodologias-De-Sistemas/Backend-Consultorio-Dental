@@ -28,7 +28,7 @@ const consultaSchema = new mongoose.Schema({
   sintomas: {
     type: String,
     maxlength: 500,
-  }
+  },
 });
 
 consultaSchema.set('toJSON', {
