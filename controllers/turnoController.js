@@ -158,10 +158,19 @@ exports.updateOne = async (req, res, next) => {
 
     const { email: pacienteEmail } = turnoActualizado.paciente;
 
-    const htmlPath = path.join(
+    let htmlPath = path.join(
       __dirname,
       '../utils/HTML_templates/turnoModificado.html',
     );
+
+    const { estado } = req.body;
+
+    if (estado.toUpperCase() === 'ACEPTADO') {
+      htmlPath = path.join(
+        __dirname,
+        '../utils/HTML_templates/turnoAceptado.html',
+      );
+    }
 
     const htmlTurnoModificado = await fs.promises.readFile(htmlPath, 'utf-8');
 
